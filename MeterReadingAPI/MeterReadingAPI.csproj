@@ -5,6 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Uploads\**" />
+    <Content Remove="Uploads\**" />
+    <EmbeddedResource Remove="Uploads\**" />
+    <None Remove="Uploads\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\WeatherForeCastController.cs" />
+    <Compile Remove="Models\WeatherForecast.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="SeedData\Test_Accounts.csv" />
   </ItemGroup>
 
@@ -21,10 +33,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Uploads\Files\" />
   </ItemGroup>
 
 </Project>

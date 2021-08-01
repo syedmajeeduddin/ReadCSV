@@ -24,44 +24,34 @@ namespace MeterReadingAPI.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        [HttpPost, DisableRequestSizeLimit]
-        //[ActionName("meter-reading-uploads")]
-        public IActionResult Upload()
+        /// <summary>
+		/// https://localhost:44331/api/meterreads
+		/// </summary>
+		/// <returns></returns>
+		[HttpGet]
+        public IActionResult Index()
         {
-            try
+            return Ok("Syed's Technical Assessment");
+        }
+
+        [HttpPost("meter-reading-uploads"), DisableRequestSizeLimit]
+        public IActionResult Upload(IFormFile csvFile)
+        {
+            if (csvFile == null)
+                return BadRequest();
+
+            using var fileStream = csvFile.OpenReadStream();
+
+            var meterReadsInfo = MeterReadsProcessor.ProcessFile(fileStream);
+
+            _unitOfWork.MeterReads.AddRange(meterReadsInfo.meterReads);
+            _unitOfWork.Complete();
+
+            return Ok(new
             {
-                var file = Request.Form.Files[0];
-                var folderName = Path.Combine("Uploads", "Files");
-                var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-                ResultSet results;
-                if (file.Length > 0)
-                {
-                    var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                    var fullPath = Path.Combine(pathToSave, fileName);
-                    var dbPath = Path.Combine(folderName, fileName);
-
-                   
-                    using (var stream = new FileStream(fullPath, FileMode.Create))
-                    {
-                        file.CopyTo(stream);
-                    }
-                                       
-
-                   var meterReads = MeterReadsProcessor.ProcessFile(fullPath, out results );
-
-                    _unitOfWork.MeterReads.AddRange(meterReads);
-                    _unitOfWork.Complete();
-                    return Ok(new { results });
-                }
-                else
-                {
-                    return BadRequest();
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex}");
-            }
+                success = meterReadsInfo.successCount,
+                failed = meterReadsInfo.failedCount
+            });
         }
 
     }

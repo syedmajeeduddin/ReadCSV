@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MeterReadingAPI.Common;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,35 +14,25 @@ namespace MeterReadingAPI.Models
     {
         public static void  Seed(this ModelBuilder modelBuilder)
         {
-
             try
-            {
+            { 
 
-                var resourceName = "MeterReadingAPI.SeedData.Test_Accounts.csv";
-                var assembly = Assembly.GetExecutingAssembly();
-                
-                var accounts = new List<Account>();
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            var resourceName = "MeterReadingAPI.SeedData.Test_Accounts.csv";
+            var assembly = Assembly.GetExecutingAssembly();
 
-                using (StreamReader streamReader = new StreamReader(stream, Encoding.UTF8))
-                {
-                    string headerLine = streamReader.ReadLine();
+            using var stream = assembly.GetManifestResourceStream(resourceName);
 
-                    string line;
-                    while ((line = streamReader.ReadLine()) != null)
-                    {
-                        string[] stItems = line.Split(',');
-                        accounts.Add(new Account {  AccountId = int.Parse(stItems[0]), 
-                                                    FirstName = stItems[1],
-                                                    LastName = stItems[2] });
-                    }
-                }
+            if (stream == null)
+                return;
 
-                modelBuilder.Entity<Account>().HasData(accounts.ToArray<Account>());
+            var accounts = CsvHelper.ReadAccounts(stream);
+
+            modelBuilder.Entity<Account>().HasData(accounts);
+
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                //TOD0 : Need to do proper logging in DB
             }
         }
     }
