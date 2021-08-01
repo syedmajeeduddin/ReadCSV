@@ -13,6 +13,7 @@ namespace MeterReadingAPI.Common
         {
             using (StreamReader streamReader = new StreamReader(new FileStream(filePath, FileMode.Open)))
             {
+                //Skip Header
                 string headerLine = streamReader.ReadLine();
                 List<MeterRead> meterReads = new List<MeterRead>();
                 string line;
@@ -54,13 +55,20 @@ namespace MeterReadingAPI.Common
         {
             try
             { 
-                string[] stItems = line.Split(',');                                
+                string[] stItems = line.Split(',');
+                DateTime meterReadDateTime;
+                int meterReadValue;
+
                 var accountId = int.Parse(stItems[0]);
 
-                //Check if this Account Id Exists in the DB 
+                //TODO : Check if this Account Id Exists in the DB 
 
-                var meterReadDateTime = DateTime.Parse(stItems[1]);
-                var meterReadValue = Int32.Parse(stItems[2]);
+                //Failed validation 
+                if (!DateTime.TryParse(stItems[1], out meterReadDateTime))
+                    return null;
+                
+                if (!int.TryParse(stItems[2], out meterReadValue))
+                    return null;
 
                 if (meterReadValue > 0 && meterReadValue.ToString().Length == 5)
                 { //do Nothing 

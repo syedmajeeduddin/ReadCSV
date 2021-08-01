@@ -33,7 +33,7 @@ namespace MeterReadingAPI.Controllers
                 var file = Request.Form.Files[0];
                 var folderName = Path.Combine("Uploads", "Files");
                 var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-
+                ResultSet results;
                 if (file.Length > 0)
                 {
                     var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
@@ -45,12 +45,11 @@ namespace MeterReadingAPI.Controllers
                     {
                         file.CopyTo(stream);
                     }
-
-                    ResultSet results;
+                                       
 
                    var meterReads = MeterReadsProcessor.ProcessFile(fullPath, out results );
 
-                   _unitOfWork.MeterReads.AddRange(meterReads);
+                    _unitOfWork.MeterReads.AddRange(meterReads);
                     _unitOfWork.Complete();
                     return Ok(new { results });
                 }
